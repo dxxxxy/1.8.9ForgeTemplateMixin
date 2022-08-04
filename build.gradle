@@ -2,9 +2,11 @@ buildscript {
     repositories {
         //new forge repository
         maven { url "https://maven.minecraftforge.net" }
+        maven { url 'https://repo.spongepowered.org/maven'}
     }
     dependencies {
         classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
     }
 }
 
@@ -14,6 +16,7 @@ plugins {
 }
 
 apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: 'org.spongepowered.mixin'
 
 version = "1.0"
 group = "dreamys.studio" //http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -38,6 +41,7 @@ repositories {
     //repos for libraries (not gradle plugins)
     //example:
     //maven { url "https://repo.dreamys.studio/" }
+    maven { url 'https://repo.spongepowered.org/maven/' }
 }
 
 dependencies {
@@ -45,6 +49,13 @@ dependencies {
     //your libraries will be accessible outside of intellij
     //example:
     //shade "studio.dreamys:libSkyblock:1.1.1"
+    shade('org.spongepowered:mixin:0.7.10-SNAPSHOT') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+        exclude module: 'gson'
+        exclude module: 'commons-io'
+        exclude module: 'log4j-core'
+    }
 
     //compile will make your library available only in this dev environment
     //your libraries wont be accessible outside of intellij
@@ -69,6 +80,8 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         exclude "mcmod.info"
     }
+
+    rename '(.+_at.cfg)', 'META-INF/$1'
 }
 
 shadowJar {
@@ -84,4 +97,22 @@ shadowJar {
 reobf {
     //reobfuscate the shadowed jar
     shadowJar {}
+}
+
+jar {
+    manifest {
+        attributes "FMLCorePlugin": "studio.dreamys.mixin.MixinLoader",
+                "ForceLoadAsMod": true,
+                "TweakOrder": 0,
+                "ModSide": "CLIENT",
+                'FMLCorePluginContainsFMLMod': true,
+                'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+                'MixinConfigs': 'mixins.examplemod.json'
+    }
+}
+
+sourceSets {
+    main {
+        ext.refMap = "mixins.examplemod.refmap.json"
+    }
 }

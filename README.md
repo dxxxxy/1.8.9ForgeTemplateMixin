@@ -5,7 +5,7 @@ with `shadow` plugin integrated including two useful `artifacts`. Tested flawles
 
 ```js
        java   8
-     gradle   3.0
+     gradle   3.1
      shadow   2.0.4
   minecraft   1.8.9
 forgegradle   2.1-SNAPSHOT
